@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>F1 Innovation Timeline</title>
+<link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Teko:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --red: #E10600; --orange: #FF8000; --neon: #D4FF00; --blue: #00BFFF;
+    --dark: #0D0D0D; --dark2: #141414; --dark3: #1E1E1E;
+    --silver: #8A8A8A; --white: #F0F0F0;
+  }
+  html { scroll-behavior: smooth; }
+  body { background: var(--dark); color: var(--white); font-family: 'Space Mono', monospace; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+
+  /* HERO */
+  .hero { min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding: 6rem 6vw 4rem; position: relative; overflow: hidden; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .hero-bg-year { position: absolute; right: -2vw; top: 50%; transform: translateY(-50%); font-family: 'Syncopate', sans-serif; font-size: clamp(120px,22vw,320px); font-weight: 700; color: rgba(255,255,255,0.025); line-height: 1; user-select: none; letter-spacing: -10px; }
+  .hero-tag { display: inline-flex; align-items: center; gap: 8px; font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--red); border: 1px solid rgba(225,6,0,0.4); padding: 6px 14px; margin-bottom: 2rem; }
+  .hero-tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--red); animation: blink 1.2s ease-in-out infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  .hero h1 { font-family: 'Syncopate', sans-serif; font-size: clamp(32px,7vw,96px); font-weight: 700; text-transform: uppercase; line-height: 0.95; letter-spacing: -1px; max-width: 800px; margin-bottom: 1.5rem; }
+  .hero h1 span { color: var(--red); }
+  .hero-sub { font-size: 11px; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; max-width: 480px; line-height: 1.8; margin-bottom: 3rem; }
+  .hero-stats { display: flex; gap: 2rem; flex-wrap: wrap; }
+  .hero-stat { display: flex; flex-direction: column; gap: 4px; }
+  .stat-num { font-family: 'Teko', sans-serif; font-size: 36px; font-weight: 600; color: var(--white); line-height: 1; }
+  .stat-label { font-size: 9px; letter-spacing: 2px; color: var(--silver); text-transform: uppercase; }
+  .hero-kerb { position: absolute; bottom: 0; left: 0; right: 0; height: 8px; background: repeating-linear-gradient(90deg, var(--red) 0, var(--red) 30px, #fff 30px, #fff 60px); opacity: 0.7; }
+  .scroll-hint { position: absolute; bottom: 2.5rem; right: 6vw; display: flex; align-items: center; gap: 10px; font-size: 9px; letter-spacing: 3px; color: var(--silver); text-transform: uppercase; animation: fadeInUp 2s ease 1s both; }
+  .scroll-hint::after { content: ''; display: block; width: 30px; height: 1px; background: var(--silver); animation: pulse-line 2s ease infinite; }
+  @keyframes pulse-line { 0%,100%{width:30px} 50%{width:50px} }
+  @keyframes fadeInUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+
+  /* TRACK */
+  .track-section { padding: 5rem 0; position: relative; overflow: hidden; }
+  .section-label { font-size: 9px; letter-spacing: 4px; color: var(--red); text-transform: uppercase; padding: 0 6vw; margin-bottom: 0.5rem; }
+  .section-title { font-family: 'Syncopate', sans-serif; font-size: clamp(18px,3vw,32px); font-weight: 700; text-transform: uppercase; padding: 0 6vw; margin-bottom: 0.5rem; }
+  .section-sub { font-size: 9px; color: var(--silver); letter-spacing: 2px; text-transform: uppercase; padding: 0 6vw; margin-bottom: 3rem; }
+  .track-container { width: 100%; padding: 0 4vw; position: relative; }
+  .track-svg { width: 100%; height: auto; display: block; }
+
+  /* Spa track colors — remap from original */
+  .spa-track .st0 { fill: #2a2a2a; }  /* dark asphalt */
+  .spa-track .st1 { fill: #c1272d; opacity: 0.7; }  /* red outline — muted */
+  .spa-track .st2 { fill: #1e1e1e; }  /* darker asphalt detail */
+  .spa-track .st3 { fill: rgba(255,255,255,0.4); }  /* white markers */
+
+  /* Car animation */
+  @keyframes carDrive { 0%{ offset-distance:0% } 100%{ offset-distance:100% } }
+  .node-pulse { animation: nodePulse 2s ease-in-out infinite; }
+  @keyframes nodePulse { 0%,100%{r:10;opacity:0.3} 50%{r:16;opacity:0} }
+  .milestone-node { cursor: pointer; }
+
+  /* CARDS */
+  .cards-section { padding: 4rem 6vw 6rem; border-top: 1px solid rgba(255,255,255,0.06); }
+  .era-group { margin-bottom: 5rem; }
+  .era-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px dashed rgba(255,255,255,0.1); }
+  .era-year { font-family: 'Teko', sans-serif; font-size: 64px; font-weight: 700; color: var(--red); line-height: 1; }
+  .era-name { font-family: 'Syncopate', sans-serif; font-size: clamp(14px,2.5vw,22px); font-weight: 700; text-transform: uppercase; }
+  .era-name small { display: block; font-family: 'Space Mono', monospace; font-size: 9px; font-weight: 400; color: var(--silver); letter-spacing: 2px; margin-top: 4px; }
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); }
+  .inno-card { background: var(--dark2); padding: 1.5rem; position: relative; transition: background 0.25s; overflow: hidden; }
+  .inno-card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 0; background: var(--red); transition: height 0.3s ease; }
+  .inno-card:hover { background: var(--dark3); }
+  .inno-card:hover::before { height: 100%; }
+  .inno-card.orange::before { background: var(--orange); }
+  .inno-card.neon::before { background: var(--neon); }
+  .inno-card.blue::before { background: var(--blue); }
+  .card-year-bg { position: absolute; bottom: -10px; right: 10px; font-family: 'Teko', sans-serif; font-size: 80px; font-weight: 700; color: rgba(255,255,255,0.03); line-height: 1; user-select: none; }
+  .card-tag { display: inline-block; font-size: 8px; letter-spacing: 2px; text-transform: uppercase; padding: 3px 8px; border: 1px solid rgba(225,6,0,0.4); color: var(--red); margin-bottom: 0.75rem; }
+  .card-tag.orange { border-color: rgba(255,128,0,0.4); color: var(--orange); }
+  .card-tag.neon { border-color: rgba(212,255,0,0.4); color: var(--neon); }
+  .card-tag.blue { border-color: rgba(0,191,255,0.4); color: var(--blue); }
+  .card-title-year { font-family: 'Teko', sans-serif; font-size: 28px; font-weight: 600; color: var(--white); line-height: 1; margin-bottom: 4px; }
+  .card-title-name { font-family: 'Syncopate', sans-serif; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.75rem; line-height: 1.3; }
+  .card-desc { font-size: 10px; color: rgba(255,255,255,0.55); line-height: 1.8; margin-bottom: 1rem; }
+  .card-impact { display: flex; align-items: center; gap: 8px; font-size: 9px; color: var(--silver); letter-spacing: 1px; text-transform: uppercase; }
+  .impact-bar { display: flex; gap: 3px; flex: 1; }
+  .impact-seg { height: 4px; flex: 1; background: rgba(255,255,255,0.08); }
+  .impact-seg.filled { background: var(--red); }
+  .impact-seg.orange.filled { background: var(--orange); }
+  .impact-seg.neon.filled { background: var(--neon); }
+  .impact-seg.blue.filled { background: var(--blue); }
+  .card-2026 { grid-column: 1/-1; background: #0D0D0D; border: 1px solid rgba(225,6,0,0.3); padding: 2rem; position: relative; overflow: hidden; }
+  .card-2026::before { display: none; }
+  .card-2026-kerb { height: 5px; background: repeating-linear-gradient(90deg, var(--red) 0, var(--red) 20px, #fff 20px, #fff 40px); margin-bottom: 1.5rem; opacity: 0.6; }
+  .card-2026-inner { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; align-items: start; }
+  @media (max-width: 700px) { .card-2026-inner { grid-template-columns: 1fr; } }
+  .card-2026-title-block .year { font-family: 'Syncopate', sans-serif; font-size: clamp(48px,8vw,80px); font-weight: 700; color: var(--red); line-height: 0.9; }
+  .card-2026-title-block .name { font-family: 'Syncopate', sans-serif; font-size: clamp(13px,2vw,18px); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; line-height: 1.3; }
+  .card-2026-title-block .sub { font-size: 9px; color: var(--silver); letter-spacing: 2px; margin-top: 8px; text-transform: uppercase; }
+  .mode-toggle { display: flex; flex-direction: column; gap: 8px; }
+  .mode-btn { padding: 10px 14px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: rgba(255,255,255,0.3); font-family: 'Syncopate', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 2px; cursor: pointer; text-align: left; display: flex; justify-content: space-between; align-items: center; transition: all 0.25s; text-transform: uppercase; }
+  .mode-btn.z-active { border-color: var(--neon); color: var(--neon); background: rgba(212,255,0,0.05); }
+  .mode-btn.x-active { border-color: var(--blue); color: var(--blue); background: rgba(0,191,255,0.05); }
+  .mode-dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+  .power-num { font-family: 'Teko', sans-serif; font-size: 56px; font-weight: 700; color: var(--orange); line-height: 1; }
+  .power-label { font-size: 9px; letter-spacing: 2px; color: var(--silver); text-transform: uppercase; margin-bottom: 12px; }
+  .seg-bar { display: flex; gap: 3px; margin-bottom: 6px; }
+  .seg-bar .seg { height: 10px; flex: 1; background: rgba(255,128,0,0.1); border: 1px solid rgba(255,128,0,0.2); }
+  .seg-bar .seg.on { background: var(--orange); border-color: var(--orange); }
+  .seg-bar .seg.peak { background: var(--red); border-color: var(--red); }
+  .bar-labels { display: flex; justify-content: space-between; font-size: 8px; color: var(--silver); }
+  .mode-desc-box { padding: 12px; border: 1px dashed rgba(255,255,255,0.1); font-size: 10px; color: rgba(255,255,255,0.5); line-height: 1.7; margin-top: 10px; }
+  footer { border-top: 1px solid rgba(255,255,255,0.06); padding: 2rem 6vw; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+  .footer-logo { font-family: 'Syncopate', sans-serif; font-size: 13px; font-weight: 700; letter-spacing: 2px; }
+  .footer-logo span { color: var(--red); }
+  .footer-note { font-size: 9px; color: var(--silver); letter-spacing: 1px; text-transform: uppercase; }
+  .fade-in { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-bg-year">F1</div>
+  <div class="hero-tag">Interactive Timeline</div>
+  <h1>Formula 1<br><span>Innovation</span><br>History</h1>
+  <p class="hero-sub">From the first championship in 1950 to the hybrid revolution of 2026 — every breakthrough that redefined speed.</p>
+  <div class="hero-stats">
+    <div class="hero-stat"><span class="stat-num">76</span><span class="stat-label">Years of Racing</span></div>
+    <div class="hero-stat"><span class="stat-num">20+</span><span class="stat-label">Key Innovations</span></div>
+    <div class="hero-stat"><span class="stat-num">350<small style="font-size:20px">kW</small></span><span class="stat-label">2026 Electric Power</span></div>
+  </div>
+  <div class="scroll-hint">Scroll to explore</div>
+  <div class="hero-kerb"></div>
+</section>
+
+<section class="track-section">
+  <div class="section-label">Visual Timeline</div>
+  <div class="section-title">Circuit de Spa-Francorchamps</div>
+  <div class="section-sub">Belgium · 7.004km · 19 Corners · Longest track on the F1 Calendar · Est. 1925</div>
+
+  <div class="track-container">
+    <svg class="track-svg spa-track" viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="glow-red">
+          <feGaussianBlur stdDeviation="4" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <style>
+          .st0 { fill: #2a2a2a; }
+          .st1 { fill: #3a1010; opacity: 0.5; }
+          .st2 { fill: #1e1e1e; }
+          .st3 { fill: rgba(255,255,255,0.35); }
+        </style>
+      </defs>
+
+      <!-- ══ REAL SPA-FRANCORCHAMPS SVG (from Illustrator file) ══ -->
+      <path class="st1" d="M503.9,649.6l-49.7,27.8c-99.7,59.4-202.1,114.3-302.7,172.3-23.3,15.4-55.7-5.2-55.5-31.7s19.3-44.9,25.3-56.5c23.5-46.3,45.4-88.5,77.1-129.9,61.6-80.3,150.5-134.6,223.9-203.1,17.8-16.6,27.2-46.6,46.5-63.5,34-29.9,73.9-29.9,115.4-39.6,47.3-28.6,92.9-59.9,139.7-89.3,49.6-31.1,79.7-44.2,135.9-61.1,175.5-52.8,353-100.2,529.5-149.5,21.8-1.8,39.6,6,52.3,23.7,12.4,17.2,7.4,26.8,34.2,21.8,45.1-8.4,92-37.8,127.8,9.2,46.9,61.5,87.8,130.8,133.7,193.3,21,35.1-.8,80.9-39.3,90.7-67.4,17.1-87.3-71.2-120.8-110.7-2.2-2.6-5.6-4.1-8.9-4.1-47.3,13.5-93.3,32.4-141.5,43.6-64.3,15-131.4,21.1-195.2,34.8-45.4,9.8-47.6,40.7-48.8,81.2-1.4,43.4,14.4,75.8,54.4,94.7,71.5,33.8,152.3,56.8,224.3,90.7,39.4,17.8,58.5,62.5,44.1,103.4s-41.2,49.2-9.1,75.6l130.2,83.8c63.8,56-18.8,119.4-48.4,168.4-46.7,47.3-104.6,27.8-157.5,4.5-55.7-24.6-111.1-76.6-150.5-122.5-47.5-55.1-71.7-126.1-109.3-187.7-23.8-38.9-56.2-61.9-96.5-81.5-28.4-13.8-66.2-32.4-95.4-42.6-39.2-13.7-75.9,7.8-112.5,22-35.9,14-71.1,29.9-108.2,40.8-67.4,19.8-138.6,17.7-208,26-19.3-.5-36.5-15.3-36.6-35ZM1247.9,70.6c-3.3.9-6.9,2.1-10,3-121.5,34.2-243.8,67.6-365,103.5s-75.8,21.7-112.3,42.7c-30.7,17.7-59.8,38.8-89.7,57.8s-6,4.1-9,6c-22,14-47.2,31.2-69.7,43.8-17.2,9.6-31.9,8.2-50.5,11.5-26.3,4.6-60.1,17.6-77.2,38.8-13.1,16.3-23.5,41.3-38.1,54.9-16.8,15.7-37.7,31.9-55.5,47-2.6,2.2-5.4,4.8-8,7-76.2,64.8-147.4,114.3-198.2,204.3-1.5,2.6-2.1,6.3-2.8,7.7-1.5,2.8-3.4,6.1-5,9-11.8,21.7-24.2,43.7-35.5,66-4.6,9-18,32.5-19.2,40.8-3.4,23.5,24.8,44.5,46.1,31.1,73.6-44.9,153.8-82.9,225.7-128.8,1.1-.7,6.3-2.5,9-4,42-24,83.9-48.3,125.5-73-.3,27.4,12.8,40.1,40,39,39.2-1.6,84.1-6.8,123.5-11,3.7-.4,7.3-.5,11-1,84.1-10.7,150.6-49.9,228.7-75.8,43.9-14.5,78,7,117.3,24.8,3.1,1.4,6.5,3.4,10,5,62.7,29,98.6,47.1,134.2,109.3,37.7,66,60.6,128.6,112.8,185.7,2.3,2.5,5,4.9,7,7,27.4,29.1,55,57.3,89.1,79.4,30.7,19.9,94.1,49.7,130.5,47.6,52.4-2.9,67.9-36,94.5-73,1.9-2.7,4-5.2,6-8,18.1-25.7,40.5-45.7,29.3-80.8-9-28.2-50.6-45.8-74.3-61.2s-5-4.1-8-6c-15.5-10.1-65.7-38.7-74.4-50.1-24-31.3,11.6-54.6,17.8-84.1,8.2-38.9-11.5-71.2-46-87.7-38.7-18.5-82.6-33-122.4-49.1s-5.8-2.7-9-4c-30.3-12.3-89-31.1-112.5-50-32.5-26.1-37.3-55.6-35.6-95.5,1.9-43.5,9.2-69,55.9-78.1,43.8-8.6,88.4-14.9,132.2-23.3,3.6-.7,7.4-1.3,11-2,12.3-2.4,24.9-3.7,37.2-6.3,52.4-11.2,102.2-31.1,153.3-46.8,5-.2,10.5,2.6,13.9,6.2,5.9,6.3,18.3,26.7,23.6,34.9,1.5,2.4,3,5.9,5,9,13.1,20.5,25.5,50.7,48,61.5,49.4,23.7,101.3-30.2,75.2-78.2-28.3-43.3-59.9-85.6-89.2-127.3s-4.5-5.9-6-8c-13.8-19.6-26.2-44.1-42-62.5-25.4-29.5-55.6-18.3-87-10.5-3.7.9-7.4,2.1-11,3-11.1,2.8-30.5,9-41,5.5s-12.6-14.7-18.6-23.4c-17-24.6-38.9-25.4-65.7-18.8-41.8,10.3-83.4,24.1-124.8,35.7Z"/>
+      <path class="st0" d="M1237.9,73.6l11,35c-127.2,36.4-255.1,71.3-382,108.5-30.9,9.1-58.1,17.7-86.3,33.7-31.3,17.8-62.1,39.5-92.7,58.8l-17-32c29.9-19,59-40.1,89.7-57.8,36.5-21,72.3-30.8,112.3-42.7,121.2-35.9,243.5-69.3,365-103.5ZM1232.6,78.7c-62.4,17.5-124.4,36.5-186.7,54.4-76.3,21.8-161.4,40.7-235.3,67.7-47.6,17.4-88.4,50.7-131.7,76.3l-1.9,2.8c3,2.8,11,23.1,14.2,22.6,42.4-25.9,83.2-58.7,130.2-75.9,11.7-4.3,24.5-7.9,36.5-11.5,65.2-19.5,131.5-36.4,197-55,62.2-17.6,124.3-35.5,186.3-53.7.7-.3,1.4-.7,1.6-1.5.4-1.2-7.1-22.8-8.1-24.7s-.8-1.8-2.1-1.5Z"/>
+      <path class="st0" d="M1358.9,262.6l7,36c-43.8,8.4-88.4,14.8-132.2,23.3-46.6,9.1-54,34.6-55.9,78.1-1.7,39.9,3.1,69.4,35.6,95.5,23.5,18.9,82.1,37.7,112.5,50l-9,35c-70-28.6-153.1-44.1-172.9-129.6-5.8-25.2-3.7-84.7,6.4-108.3,26.3-61.4,91.3-58.2,147.7-68.3,20.3-3.7,40.6-7.7,60.8-11.7ZM1319.8,547.7l-93.6-37.9c-39.1-22.7-54.7-56.1-53.3-100.7,1.4-46.8,6-80.6,57.9-91.1,21.9-4.5,45.2-6.8,67.4-10.6,20.3-3.5,40.5-7.6,60.9-11.1,1.2-.8,1-2.7,1-4-.1-3-3.2-19.1-4.2-21.9s-1-1.7-2.3-1.7c-25.1,4.6-50.1,9.3-75.3,13.8-46,8.1-88,5.7-116.6,49.4s-16.4,57.4-16.6,83.4c-.6,57.6,30.3,102.2,82.1,125,27.8,12.3,56.9,21.8,84.6,34.4,1.8.7,2.4-3.5,2.8-4.9,2.2-7.1,3.8-14.6,5.4-21.9Z"/>
+      <path class="st0" d="M1559.9,820.6l-18,31c-25.2-16.4-77.3-42.2-91.2-67.3-14.1-25.6-12.9-50.3.7-75.7s16.3-21.7,17.5-36.5c3-38.2-37.9-43.9-65-55-26.1-10.7-51.9-21.8-78-32.5l9-35c39.8,16.2,83.7,30.6,122.4,49.1,34.5,16.5,54.2,48.8,46,87.7-6.2,29.4-41.7,52.7-17.8,84.1,8.8,11.4,58.9,40,74.4,50.1ZM1552.8,820.7l-66.4-42.1c-36-36.1,8-62.9,13.2-96.7,5.2-33.9-13.4-66.6-45-79.4l-114.7-46.4-7.9,26.5,117.3,47.2c19.1,10,26.5,26.6,23.2,47.9-2.3,15.1-16.2,28.7-22,43-11.9,29.3-2.6,63.5,22.8,82.2l64.5,41.6c1.3.5,1.9,0,2.8-.8s11.3-18.4,12-20.1,1-1.9.4-2.8Z"/>
+      <path class="st0" d="M1313.9,891.6l-28,24c-52.2-57.1-75.2-119.7-112.8-185.7-35.6-62.3-71.5-80.3-134.2-109.3l14-34c66.6,30.3,110.5,50.8,149.2,117.3,36.4,62.6,62.6,134.2,111.8,187.7ZM1055.9,592.6c-.3,4.2-11.8,24.2-10.6,26,18.5,8.6,37.3,16.7,54.9,27.2,67.8,40.6,94.2,117.1,130.5,183.5,13.2,24.1,25.1,45.8,43.2,66.8,2.5,2.9,7.8,9.8,10.4,11.6s1.4,1.4,2.5.5l19.6-16.6c.7-.7.3-1.3,0-2-.5-2.1-14.9-17-17.6-20.5-57.9-73.6-75.4-177.8-155.7-236.3-23.2-16.9-51-29.1-77.3-40.2Z"/>
+      <path class="st0" d="M352.9,679.6l21,37c-71.9,45.9-152,83.9-225.7,128.8-21.3,13.5-49.4-7.5-46.1-31.1s14.7-31.8,19.2-40.8c11.3-22.2,23.8-44.2,35.5-66l32,20c-3,6.2-5.6,14.9-8.8,21.7-5.1,10.8-15,26.2-18.2,36.8s0,1.8,1.5,1.5c61.8-35.1,123-71.2,184.8-106.2,1.6-.9,3.6-1.2,4.7-1.8ZM350.9,685.6l-197.5,113-1.5-1.5,32-67c-4.1-1.3-25-16.8-26.9-15.4l-49.6,96.9c-5,19.4,15.3,39.5,34.5,31.5l226-126.5-17-31Z"/>
+      <path class="st0" d="M1043.9,582.6l-15,33c-39.2-17.8-73.3-39.3-117.3-24.8-78.1,25.8-144.6,65.1-228.7,75.8l-4-37c79.2-10.3,148.9-50.9,223.5-75,57.1-18.4,91.9,5.8,141.5,28ZM1036.8,583.7c-28.7-11.3-56.6-29.4-88.3-31.2-34-1.8-71.2,16.2-102.8,28.3-52.7,20.2-104.8,45.5-161.7,51.8l3,29c82.4-11.4,155.9-52.6,234-78.5,38.8-11,71,14,105.5,26.5.8-4.3,12-23.3,10.4-25.9Z"/>
+      <path class="st0" d="M661.9,283.6l17,31c-22.2,14-45.5,31.5-68.1,44.4-34.7,19.9-73,9.3-107.1,31.9-15.7,10.4-26.8,35.9-37.6,51.4-18.9,27.2-49.5,45.3-74.2,66.3l-21-29c17.7-15.1,38.7-31.4,55.5-47,14.6-13.6,25-38.6,38.1-54.9,17.1-21.2,51-34.2,77.2-38.8,18.6-3.2,33.3-1.9,50.5-11.5,22.5-12.6,47.7-29.8,69.7-43.8ZM492.2,394c30.5-31.7,85.2-17.2,119.6-40.9l59.6-38.4v-3s-11.6-22-11.6-22c-24.9,15.2-48.8,32.2-74.3,46.2-32.7,7.9-62.1,7.5-92.4,24.6s-39.9,44.5-58.9,71.1l-57.3,48.6,16.6,21.4,2.1-.6,53.3-44.8c17.8-16.6,27.2-45.3,43.4-62.1Z"/>
+      <path class="st0" d="M361.9,674.6c26-14.7,52.2-28.6,78.7-42.8,19.1-10.3,38.6-23.9,57.7-33.3,32.2-15.9,58.1,9.2,49.7,42.2,24.8-2.2,49.7-4.8,74.5-7s31.1-1.3,46.5-3l3,37c-39.4,4.2-84.3,9.4-123.5,11-27.2,1.1-40.2-11.6-40-39-41.6,24.7-83.5,49-125.5,73l-21-38ZM537.3,607.2c-6.4-7-13.9-10.5-23.8-9.5s-54.8,29.4-68.9,37.1c-22.3,12.1-46.9,22.4-68.3,35.7-2.8,1.7-8.6,3.7-6.9,7.2,5.8,8.2,9.6,18.6,15.3,26.7s0,1.7,1.6,1.1l128.2-75.9c.5,7.1-1.2,14.3-.5,21.5,1.3,14,14.1,23.1,27.5,23.5l125.6-11c-1.1-3.8-1.6-27.5-3.6-28.1l-120.4,9.1c1.9-14.4,5.2-25.7-5.6-37.4Z"/>
+      <path class="st0" d="M1576.9,955.6l30,21c-26.6,37.1-42.1,70.1-94.5,73s-99.7-27.7-130.5-47.6c-34.1-22.1-61.7-50.3-89.1-79.4l28-23c29.1,30.5,71.1,68.7,109.3,87.2,13.9,6.7,53.5,23.7,67.4,25.6,43,5.8,58-27.7,79.2-56.7ZM1599.8,977.7l-22.3-15c-18.4,23.2-26.8,47.6-59.4,53.7-23.5,4.4-58.2-11.6-80.2-21.3-35.4-15.7-63.9-38.8-92-65-3.4-3.1-22-23-23.7-23.4s-1.4,0-2.3.4c-1.3.6-20,15.7-20,17,37.3,38.8,77.8,76.6,128,98,41.4,17.7,86.9,36.3,128.5,8.5,18.9-12.6,29.1-32.7,43-50.1.5-.8.9-2,.4-2.9Z"/>
+      <path class="st0" d="M1643.9,149.6c29.3,41.7,60.9,84,89.2,127.3,26.1,48-25.8,101.9-75.2,78.2-22.5-10.8-34.9-41-48-61.5l30-18c0,.1,1.9,0,2.9,1.6,6.9,10.9,17.2,31.2,25.1,39.9,13.9,15.3,39.9,1.2,33.7-19.7-1-3.5-3.9-7-5.9-10.1-24.9-38.9-54.1-78.7-80.8-116.7l29-21ZM1644.8,156.7c-1.5-1-20,13.4-22.8,15.5l.3,1.4,81.7,117.4c14.7,27.6-21.7,49-39.1,29.8-8.5-9.3-15.4-26.8-23.5-37.2s-1.1-1.6-2.1-2c-3.2,2.4-22.5,12.3-22.2,15.2,13.2,18.6,21.9,45.2,44.2,54.8,48.2,20.8,95-34.5,64.7-77.7l-81.1-117.4Z"/>
+      <path class="st0" d="M362.9,486.6l21,29c-70.5,59.7-147.5,117.8-190,202l-32-19c.8-1.4,1.4-5.1,2.8-7.7,50.7-90,122-139.6,198.2-204.3ZM193.8,710.5c.9-.6,7.8-15.7,9.7-18.8,21.6-35.3,48.7-67.9,79.4-95.6,30.4-27.4,63.5-51.8,93.5-79.5.9-1.3.3-2.4-.3-3.7s-13.2-18.3-14.2-18.8-1.7-.4-2.6.5c-33.8,31.4-71.8,58.2-105.5,89.5-16.3,15.2-29.7,31.1-43.4,48.6-15.5,19.8-30.8,40.1-42.6,62.4l.2,1.3c7.3,2.8,15.2,10.8,21.9,13.6s2.9,1,3.8.4Z"/>
+      <path class="st0" d="M1634.9,266.6l-30,18c-5.3-8.2-17.7-28.6-23.6-34.9s-8.9-6.4-13.9-6.2c-51.1,15.7-100.9,35.6-153.3,46.8-12.3,2.6-24.9,3.9-37.2,6.3l-7-36c41.4-8.3,78.5-16.8,118.8-29.7s63.1-25.6,82.8-24.3c35.1,2.3,47.6,35.2,63.5,60ZM1604.9,278.6c4.9-4.1,18.3-9.3,22-13.5s1-.9,1-1.9c0-1.8-15.7-25.6-18.2-28.9-14-18.5-32.6-27-55.6-20.9-22.9,6-46.6,16.3-69.5,23.5-35.7,11.3-71.8,21.1-108.8,27.3.3,9.2,3.3,18.2,5,27,39-4.6,77.2-16.6,114.6-28.6,19.4-6.2,47.9-19.2,66.4-22.6,25.2-4.6,31.4,22.2,43.1,38.5Z"/>
+      <path class="st0" d="M1497.9,71.6l8,35c-26.9,6.5-52.4,16.3-77.3-3.2-14.4-11.2-15.7-32.6-34.1-34.9-45.2,11-90.6,24.2-135.5,37.1l-11-35c41.4-11.6,83-25.4,124.8-35.7,26.7-6.6,48.7-5.8,65.7,18.8,6,8.7,7.3,19.6,18.6,23.4s29.9-2.7,41-5.5ZM1493.9,76.6c-12.6,3.5-30.4,10-42.7,3.2s-12.2-17.9-18.3-25.7c-13.9-17.8-30.1-21.2-51.8-16.9l-127.2,35.9,9.5,27.5,119.3-34.7c33.6-8.4,29.3,18.5,49.3,34.1s44.7,10,67.9,3.6l-6-27Z"/>
+      <path class="st0" d="M1612.9,968.6l-29-21c.3-.4.3-2.2,1.1-3.3,10.1-13.8,34.9-36.6,16.8-53.1s-38.1-24.5-51.9-33.6l18-31c23.7,15.4,65.3,33.1,74.3,61.2,11.2,35.1-11.1,55-29.3,80.8ZM1589.9,946.6c6.6,2,15.6,12.6,21,14.6s1.6.7,2.5-.5c8.5-14.2,24.4-28.6,26.4-45.7,2.2-19.1-3.1-36.4-17.9-48.9l-52-33.5c-.2,4.5-14.4,22.4-12.9,24.9l46.4,29.1c9.3,7.4,12.2,19.4,7.4,30.4s-21.9,28.1-20.9,29.6Z"/>
+      <path class="st0" d="M1637.9,141.6l-29,20c-12.2-17.3-25.7-37.2-38.6-53.9s-6.9-9.6-15.2-10.8c-10.6-1.5-28.3,4.1-39.2,6.7l-7-35c31.4-7.8,61.6-18.9,87,10.5,15.8,18.3,28.2,42.8,42,62.5ZM1608.9,155.6c3.2-2,23.2-14.8,22.6-17.1-13.4-16.5-23.8-37.7-37.2-53.9-21.9-26.5-50.6-22.8-80.4-13l6,27c17.3-4.9,39.5-13.6,52.4,4.1l36.6,52.9Z"/>
+      <path class="st3" d="M361.9,674.6l21,38c-2.7,1.5-7.9,3.3-9,4l-21-37c2.9-1.6,6.2-3.4,9-5Z"/>
+      <path class="st3" d="M193.9,717.6c-1.6,3.1-3.5,7-5,10l-32-20c1.6-2.9,3.5-6.2,5-9l32,19Z"/>
+      <path class="st3" d="M1320.9,899.6l-28,23c-2-2.1-4.7-4.5-7-7l28-24c2.3,2.5,5.1,6,7,8Z"/>
+      <path class="st3" d="M1247.9,70.6l11,35c-3.3,1-6.6,2-10,3l-11-35c3.1-.9,6.7-2.1,10-3Z"/>
+      <path class="st3" d="M678.9,629.6l4,37c-3.7.5-7.3.6-11,1l-3-37c3.2-.3,6.8-.6,10-1Z"/>
+      <path class="st3" d="M1052.9,586.6l-14,34c-3.5-1.6-6.9-3.6-10-5l15-33c2.9,1.3,6.1,2.7,9,4Z"/>
+      <path class="st3" d="M1369.9,260.6l7,36c-3.6.7-7.4,1.3-11,2l-7-36c3.7-.7,7.3-1.3,11-2Z"/>
+      <path class="st3" d="M1637.9,141.6c1.5,2.1,4.2,5.4,6,8l-29,21c-2.1-3-4-6.1-6-9l29-20Z"/>
+      <path class="st3" d="M1508.9,68.6l7,35c-3.1.7-6.6,2.2-10,3l-8-35c3.6-.9,7.3-2.1,11-3Z"/>
+      <path class="st3" d="M1583.9,947.6l29,21c-2,2.8-4.1,5.3-6,8l-30-21c2.2-2.9,5.9-6.4,7-8Z"/>
+      <path class="st3" d="M391.9,508.6c-2.2,1.9-5.4,4.8-8,7l-21-29c2.6-2.2,5.4-4.8,8-7l21,29Z"/>
+      <path class="st3" d="M1334.9,549.6l-9,35c-3.2-1.3-6.3-2.9-9-4l9-35c3.2,1.3,6.3,2.9,9,4Z"/>
+      <path class="st3" d="M670.9,277.6l17,32c-2.9,1.9-6.3,3.3-9,5l-17-31c3-1.9,5.9-4,9-6Z"/>
+      <path class="st3" d="M1567.9,826.6l-18,31c-2.8-1.8-5.6-4.4-8-6l18-31c3,1.9,5.8,4.6,8,6Z"/>
+      <path class="st3" d="M1634.9,266.6c1.5,2.3,4.6,8.5,5,9l-30,18c-2-3.1-3.5-6.6-5-9l30-18Z"/>
+
+      <!-- Main track fill (darkest layer on top for depth) -->
+      <path class="st2" d="M554.9,633.6c20.2-.1,40.4-3.4,60.5-5,23.7-1.9,47.3-2.7,70.8-6.2,77.1-11.3,143.4-50.9,216.1-73.9,30.2-9.6,57.4-7.4,86.8,3.3s65.4,27.8,94.4,41.6c49,23.3,89.7,52.6,118.5,99.5,40,65.1,64,138.5,116.8,195.2,50.3,54.1,98.7,95.6,171.5,116.5,45.1,13,59.9-22.5,81.7-52.4,5.6-7.7,29.3-35.9,30.6-42.4,2-9.7-3.2-13.6-10-18.5-39-28.3-85.8-51.8-125-80-28.7-20.6-39.7-59.9-27.2-92.8,8.4-22.1,33.5-41.8,18.3-67.3-8.8-14.7-49.7-26.2-66.8-33.2-61.2-25.1-122.6-49.9-183.7-75.3-62.7-36.9-77.6-90.2-71.3-159.7,5.3-58.9,31.8-92,90.8-103.2s141.5-21,210.4-39.6c38.3-10.3,76.6-27.4,114-37,24.8-6.3,45.2,2.1,62.3,20.2l59,91c10.7,8.9,27.1-1.6,23.1-15.1-43.8-65.7-89.6-131-136-194.9l-10.9-2.9c-43.7,6.7-102.3,40.8-135.4-5.8-5.1-7.1-9.8-21.8-19.8-22.2-112,30.9-223.5,63.8-335.2,95.6-65.3,18.6-131.2,35.4-196.2,54.8-27.5,8.2-52.6,16.1-77.7,30.3-58.4,33.1-112.6,74.5-170.4,108.6-32.8,19.3-64.9,11.5-97.3,26.7-30.6,14.4-40.1,53.4-65.1,76.9-83.5,78.6-189.9,137.9-246.7,241.3-11.8,21.5-20.6,44.7-31.3,66.7l212.8-122.1c16.3-8.6,33.2-16,49.3-24.7,17.1-9.2,60.6-38.9,76.8-40.2,26-2,44.8,20.7,41.5,46Z"/>
+
+      <!-- ══ CORNER LABELS ══ -->
+      <text x="1780" y="210" font-family="Space Mono" font-size="18" fill="rgba(255,255,255,0.35)">LA SOURCE</text>
+      <text x="1780" y="232" font-family="Space Mono" font-size="13" fill="rgba(225,6,0,0.7)">T1 · HAIRPIN</text>
+
+      <text x="200" y="460" font-family="Space Mono" font-size="18" fill="rgba(255,255,255,0.35)">EAU ROUGE</text>
+      <text x="200" y="482" font-family="Space Mono" font-size="13" fill="rgba(225,6,0,0.7)">T3–T5 · ICONIC</text>
+
+      <text x="800" y="95" font-family="Space Mono" font-size="18" fill="rgba(255,255,255,0.35)" text-anchor="middle">KEMMEL STRAIGHT</text>
+
+      <text x="260" y="270" font-family="Space Mono" font-size="18" fill="rgba(255,255,255,0.35)">LES COMBES</text>
+      <text x="260" y="292" font-family="Space Mono" font-size="13" fill="rgba(225,6,0,0.7)">T7–T9</text>
+
+      <text x="130" y="630" font-family="Space Mono" font-size="18" fill="rgba(255,255,255,0.35)">RIVAGE</text>
+      <text x="130" y="652" font-family="Space Mono" font-size="13" fill="rgba(212,255,0,0.7)">T10–T11</text>
+
+      <text x="500" y="760" font-family="Space Mono" font-size="18" fill="rgba(255,255,255,0.35)">POUHON</text>
+      <text x="500" y="782" font-family="Space Mono" font-size="13" fill="rgba(212,255,0,0.7)">T12–T13</text>
+
+      <text x="1100" y="1020" font-family="Space Mono" font-size="18" fill="rgba(255,255,255,0.35)">BLANCHIMONT</text>
+      <text x="1100" y="1042" font-family="Space Mono" font-size="13" fill="rgba(0,191,255,0.7)">T17 · 310KM/H FLAT</text>
+
+      <text x="1620" y="760" font-family="Space Mono" font-size="18" fill="rgba(255,255,255,0.35)">BUS STOP</text>
+      <text x="1620" y="782" font-family="Space Mono" font-size="13" fill="rgba(225,6,0,0.7)">T18–T19 CHICANE</text>
+
+      <!-- S/F line -->
+      <rect x="1390" y="108" width="6" height="60" fill="white" opacity="0.5"/>
+      <text x="1400" y="104" font-family="Space Mono" font-size="14" fill="rgba(255,255,255,0.5)">START / FINISH</text>
+
+      <!-- ══ MILESTONE NODES ══ -->
+      <!-- 1950 — S/F straight -->
+      <g class="milestone-node" onclick="scrollToCard('era1950')">
+        <circle cx="1390" cy="140" r="30" fill="rgba(225,6,0,0.15)" stroke="#E10600" stroke-width="2"/>
+        <circle cx="1390" cy="140" r="12" fill="#E10600"/>
+        <circle cx="1390" cy="140" r="30" fill="none" stroke="rgba(225,6,0,0.3)" stroke-width="1.5" class="node-pulse"/>
+        <text x="1390" y="94" text-anchor="middle" font-family="Teko" font-size="24" font-weight="700" fill="white">1950</text>
+        <text x="1390" y="76" text-anchor="middle" font-family="Space Mono" font-size="10" fill="#8A8A8A">BORN</text>
+        <line x1="1390" y1="80" x2="1390" y2="108" stroke="rgba(225,6,0,0.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- 1968 — Eau Rouge -->
+      <g class="milestone-node" onclick="scrollToCard('era1960')">
+        <circle cx="422" cy="478" r="26" fill="rgba(225,6,0,0.15)" stroke="#E10600" stroke-width="2"/>
+        <circle cx="422" cy="478" r="10" fill="#E10600"/>
+        <text x="340" y="468" text-anchor="end" font-family="Teko" font-size="22" font-weight="700" fill="white">1968</text>
+        <text x="340" y="484" text-anchor="end" font-family="Space Mono" font-size="9" fill="#8A8A8A">FIRST WINGS</text>
+        <line x1="344" y1="476" x2="394" y2="476" stroke="rgba(225,6,0,0.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- 1977 — Kemmel -->
+      <g class="milestone-node" onclick="scrollToCard('era1970')">
+        <circle cx="800" cy="148" r="26" fill="rgba(255,128,0,0.15)" stroke="#FF8000" stroke-width="2"/>
+        <circle cx="800" cy="148" r="10" fill="#FF8000"/>
+        <text x="800" y="190" text-anchor="middle" font-family="Teko" font-size="22" font-weight="700" fill="white">1977</text>
+        <text x="800" y="206" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#8A8A8A">GROUND EFFECT</text>
+        <line x1="800" y1="176" x2="800" y2="186" stroke="rgba(255,128,0,0.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- 1983 — Les Combes -->
+      <g class="milestone-node" onclick="scrollToCard('era1980')">
+        <circle cx="310" cy="316" r="26" fill="rgba(225,6,0,0.15)" stroke="#E10600" stroke-width="2"/>
+        <circle cx="310" cy="316" r="10" fill="#E10600"/>
+        <text x="310" y="278" text-anchor="middle" font-family="Teko" font-size="22" font-weight="700" fill="white">1983</text>
+        <text x="310" y="260" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#8A8A8A">TURBO ERA</text>
+        <line x1="310" y1="264" x2="310" y2="288" stroke="rgba(225,6,0,0.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- 1992 — Rivage -->
+      <g class="milestone-node" onclick="scrollToCard('era1990')">
+        <circle cx="157" cy="600" r="26" fill="rgba(255,128,0,0.15)" stroke="#FF8000" stroke-width="2"/>
+        <circle cx="157" cy="600" r="10" fill="#FF8000"/>
+        <text x="80" y="584" text-anchor="middle" font-family="Teko" font-size="22" font-weight="700" fill="white">1992</text>
+        <text x="80" y="600" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#8A8A8A">FW14B</text>
+        <line x1="108" y1="596" x2="129" y2="598" stroke="rgba(255,128,0,0.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- 2009 — Pouhon -->
+      <g class="milestone-node" onclick="scrollToCard('era2000')">
+        <circle cx="500" cy="720" r="26" fill="rgba(212,255,0,0.15)" stroke="#D4FF00" stroke-width="2"/>
+        <circle cx="500" cy="720" r="10" fill="#D4FF00"/>
+        <text x="500" y="760" text-anchor="middle" font-family="Teko" font-size="22" font-weight="700" fill="white">2009</text>
+        <text x="500" y="778" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#8A8A8A">KERS · DRS</text>
+        <line x1="500" y1="748" x2="500" y2="758" stroke="rgba(212,255,0,0.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- 2014 — Blanchimont -->
+      <g class="milestone-node" onclick="scrollToCard('era2010')">
+        <circle cx="1100" cy="970" r="26" fill="rgba(0,191,255,0.15)" stroke="#00BFFF" stroke-width="2"/>
+        <circle cx="1100" cy="970" r="10" fill="#00BFFF"/>
+        <text x="1040" y="954" text-anchor="middle" font-family="Teko" font-size="22" font-weight="700" fill="white">2014</text>
+        <text x="1040" y="970" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#8A8A8A">HYBRID PU</text>
+        <line x1="1068" y1="964" x2="1072" y2="966" stroke="rgba(0,191,255,0.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- 2022 — Bus Stop -->
+      <g class="milestone-node" onclick="scrollToCard('era2020')">
+        <circle cx="1640" cy="700" r="26" fill="rgba(255,128,0,0.15)" stroke="#FF8000" stroke-width="2"/>
+        <circle cx="1640" cy="700" r="10" fill="#FF8000"/>
+        <text x="1640" y="660" text-anchor="middle" font-family="Teko" font-size="22" font-weight="700" fill="white">2022</text>
+        <text x="1640" y="642" text-anchor="middle" font-family="Space Mono" font-size="9" fill="#8A8A8A">NEW ERA</text>
+        <line x1="1640" y1="646" x2="1640" y2="672" stroke="rgba(255,128,0,0.5)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- 2026 — La Source SPECIAL -->
+      <g class="milestone-node" onclick="scrollToCard('era2026')">
+        <circle cx="1690" cy="230" r="36" fill="rgba(225,6,0,0.2)" stroke="#E10600" stroke-width="2.5" filter="url(#glow-red)"/>
+        <circle cx="1690" cy="230" r="15" fill="#E10600"/>
+        <circle cx="1690" cy="230" r="36" fill="none" stroke="rgba(225,6,0,0.4)" stroke-width="2" class="node-pulse"/>
+        <text x="1690" y="300" text-anchor="middle" font-family="Teko" font-size="26" font-weight="700" fill="#E10600" filter="url(#glow-red)">2026</text>
+        <text x="1690" y="320" text-anchor="middle" font-family="Space Mono" font-size="10" fill="#E10600">MANUAL OVERRIDE</text>
+        <line x1="1690" y1="268" x2="1690" y2="294" stroke="rgba(225,6,0,0.6)" stroke-width="1.5" stroke-dasharray="4 3"/>
+      </g>
+
+      <!-- McLaren MP4/5B car -->
+      <g id="f1car" style="offset-path:path('M1505.9,106.6c3.4-.8,6.9-2.3,10-3,11-2.7,28.6-8.3,39.2-6.7,8.3,1.2,10.5,4.9,15.2,10.8,12.9,16.7,26.4,36.6,38.6,53.9,2,2.9,3.9,6,6,9,26.7,38,55.9,77.8,80.8,116.7,2,3.1,4.9,6.5,5.9,10.1,6.2,20.9-19.9,35.1-33.7,19.7-7.9-8.7-18.2-29-25.1-39.9s-2.8-1.5-2.9-1.6c-.4-.5-3.5-6.7-5-9-15.9-24.8-28.3-57.7-63.5-60-19.7-1.3-61.9,17.6-82.8,24.3-40.3,12.9-77.3,21.5-118.8,29.7-3.7.7-7.3,1.3-11,2-20.2,3.9-40.5,8-60.8,11.7-56.3,10.1-121.3,6.9-147.7,68.3-10.1,23.7-12.2,83.2-6.4,108.3,19.8,85.5,102.9,101,172.9,129.6,2.7,1.1,5.8,2.7,9,4,26.1,10.6,52,21.8,78,32.5,27.1,11.1,68,16.8,65,55-1.2,14.8-11,24.2-17.5,36.5-13.5,25.4-14.8,50.1-.7,75.7,13.9,25.1,66,50.9,91.2,67.3,2.4,1.6,5.2,4.2,8,6,13.9,9.1,41,23.6,51.9,33.6,18.1,16.6-6.7,39.3-16.8,53.1-.8,1.1-.8,2.9-1.1,3.3-1.1,1.6-4.8,5.1-7,8-21.2,29-36.2,62.6-79.2,56.7-13.9-1.9-53.5-18.8-67.4-25.6-38.2-18.5-80.2-56.6-109.3-87.2-1.9-2-4.7-5.5-7-8-49.3-53.5-75.4-125.1-111.8-187.7-38.7-66.5-82.5-87-149.2-117.3-2.9-1.3-6.1-2.7-9-4-49.6-22.2-84.5-46.5-141.5-28-74.6,24.1-144.3,64.7-223.5,75-3.2.4-6.8.7-10,1-15.4,1.7-31.1,1.7-46.5,3-24.8,2.2-49.7,4.8-74.5,7,8.4-33-17.5-58-49.7-42.2-19.1,9.4-38.6,23.1-57.7,33.3-26.4,14.2-52.6,28.2-78.7,42.8-2.8,1.6-6.1,3.4-9,5s-3,.9-4.7,1.8c-61.8,35-123,71.1-184.8,106.2-1.4.3-1.9,0-1.5-1.5,3.2-10.6,13.1-26.1,18.2-36.8,3.2-6.8,5.8-15.5,8.8-21.7s3.4-6.9,5-10c42.5-84.2,119.5-142.3,190-202,2.6-2.2,5.8-5.1,8-7,24.7-21,55.3-39.1,74.2-66.3s22-40.9,37.6-51.4c34-22.7,72.3-12,107.1-31.9,22.6-13,45.9-30.4,68.1-44.4,2.7-1.7,6.1-3.1,9-5,30.6-19.3,61.4-41,92.7-58.8,28.2-16,55.4-24.6,86.3-33.7,126.9-37.2,254.8-72.1,382-108.5,3.4-1,6.7-2,10-3,44.9-12.9,90.3-26,135.5-37.1,18.4,2.3,19.7,23.7,34.1,34.9,24.9,19.4,50.4,9.6,77.3,3.2Z');offset-distance:0%;offset-rotate:auto;animation:carDrive 28s linear infinite">
+        <g transform="translate(-22,-9)">
+          <ellipse cx="22" cy="9" rx="21" ry="8" fill="rgba(0,0,0,0.45)" transform="translate(1.5,1.5)"/>
+          <path d="M-3,5.5 Q-5,7 -5,9 Q-5,11 -3,12.5 L6,11.5 L6,6.5 Z" fill="#E10600"/>
+          <rect x="-7" y="6" width="7" height="6" rx="0.5" fill="#CCCCCC"/>
+          <rect x="-8.5" y="7" width="3" height="4" rx="0.5" fill="#E10600"/>
+          <rect x="-0.5" y="7" width="3" height="4" rx="0.5" fill="#E10600"/>
+          <rect x="-7.5" y="8" width="10" height="2" rx="0.5" fill="#E8E8E8"/>
+          <rect x="-7" y="10" width="9" height="1.5" rx="0.3" fill="#E10600"/>
+          <path d="M6,4 Q10,2 18,2 L24,2.5 L24,6 L6,6.5 Z" fill="#F5F5F5"/>
+          <path d="M6,13.5 Q10,16 18,16 L24,15.5 L24,12 L6,11.5 Z" fill="#F5F5F5"/>
+          <path d="M6,4 L24,2.5 L24,4 L6,5.5 Z" fill="#E10600"/>
+          <path d="M6,13.5 L24,15.5 L24,14 L6,12.5 Z" fill="#E10600"/>
+          <rect x="6" y="5" width="26" height="8" fill="#F5F5F5"/>
+          <path d="M12,5 L15.5,9 L12,13" fill="none" stroke="#E10600" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+          <path d="M15.5,5 L19,9 L15.5,13" fill="none" stroke="#E10600" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/>
+          <rect x="20" y="6" width="10" height="6" rx="1" fill="#E10600"/>
+          <rect x="21" y="7.5" width="4" height="3" rx="1" fill="white" opacity="0.5"/>
+          <rect x="13" y="4" width="5" height="10" rx="2.5" fill="#2A2A2A"/>
+          <rect x="14" y="4.5" width="3" height="5" rx="1" fill="#111"/>
+          <ellipse cx="16" cy="9" rx="5" ry="3" fill="#111"/>
+          <ellipse cx="15.5" cy="9" rx="3.5" ry="2.2" fill="#080808"/>
+          <path d="M32,5.5 Q38,5 42,6.5 L42,11.5 Q38,13 32,12.5 Z" fill="#CCCCCC"/>
+          <rect x="42" y="2" width="11" height="2.2" rx="0.5" fill="#BBBBBB"/>
+          <rect x="42" y="4.5" width="11" height="2" rx="0.5" fill="#BBBBBB"/>
+          <rect x="42" y="6.5" width="11" height="1.5" rx="0.5" fill="#E10600"/>
+          <rect x="41.5" y="1.5" width="1.8" height="7" rx="0.5" fill="#777"/>
+          <rect x="53" y="1.5" width="1.8" height="7" rx="0.5" fill="#777"/>
+          <rect x="46" y="6" width="2.5" height="9" fill="#555"/>
+          <ellipse cx="4" cy="1.8" rx="4.5" ry="3.2" fill="#111"/>
+          <ellipse cx="4" cy="1.8" rx="2.6" ry="2" fill="#2A2A2A"/>
+          <rect x="1" y="0.3" width="7" height="1.1" rx="0.5" fill="#FFD700" opacity="0.85"/>
+          <ellipse cx="4" cy="16.2" rx="4.5" ry="3.2" fill="#111"/>
+          <ellipse cx="4" cy="16.2" rx="2.6" ry="2" fill="#2A2A2A"/>
+          <rect x="1" y="17" width="7" height="1.1" rx="0.5" fill="#FFD700" opacity="0.85"/>
+          <ellipse cx="35" cy="0.5" rx="5.5" ry="3.8" fill="#111"/>
+          <ellipse cx="35" cy="0.5" rx="3.2" ry="2.4" fill="#2A2A2A"/>
+          <rect x="31" y="-1" width="9" height="1.2" rx="0.5" fill="#FFD700" opacity="0.85"/>
+          <ellipse cx="35" cy="17.5" rx="5.5" ry="3.8" fill="#111"/>
+          <ellipse cx="35" cy="17.5" rx="3.2" ry="2.4" fill="#2A2A2A"/>
+          <rect x="31" y="18" width="9" height="1.2" rx="0.5" fill="#FFD700" opacity="0.85"/>
+          <ellipse cx="44" cy="9" rx="3.5" ry="1.5" fill="#FF6600" opacity="0.55"/>
+        </g>
+      </g>
+
+      <text x="1900" y="1065" font-family="Syncopate" font-size="14" font-weight="700" fill="rgba(255,255,255,0.08)" text-anchor="end">SPA-FRANCORCHAMPS · ARDENNES · BELGIUM · 7.004KM</text>
+    </svg>
+  </div>
+  <p style="text-align:center;font-size:9px;color:var(--silver);letter-spacing:2px;text-transform:uppercase;margin-top:1rem">
+    McLaren MP4/5B · Ayrton Senna 1990 · Click any node to jump to era ↓
+  </p>
+</section>
+
+<!-- CARDS -->
+<section class="cards-section">
+  <div class="section-label">Innovation Log</div>
+  <div class="section-title">Every Breakthrough</div>
+
+  <div class="era-group fade-in" id="era1950">
+    <div class="era-header"><div class="era-year">50s</div><div class="era-name">The Beginning<small>1950–1959 — World Championship Era</small></div></div>
+    <div class="cards-grid">
+      <div class="inno-card"><div class="card-year-bg">1950</div><div class="card-tag">Championship</div><div class="card-title-year">1950</div><div class="card-title-name">FIA World Championship Born</div><p class="card-desc">First official F1 World Championship at Silverstone. Alfa Romeo 158 dominates with supercharged 1.5L straight-8 engine.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">1958</div><div class="card-tag">Engineering</div><div class="card-title-year">1958</div><div class="card-title-name">Rear-Engine Revolution</div><p class="card-desc">Cooper T43 proves rear-engine layout superior. Within 3 years every front-engine car was obsolete. Changed F1 architecture permanently.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="era-group fade-in" id="era1960">
+    <div class="era-header"><div class="era-year">60s</div><div class="era-name">Aero Awakening<small>1960–1969 — Wings & Sponsorship</small></div></div>
+    <div class="cards-grid">
+      <div class="inno-card"><div class="card-year-bg">1968</div><div class="card-tag">Aerodynamics</div><div class="card-title-year">1968</div><div class="card-title-name">First Wings — Downforce</div><p class="card-desc">Lotus 49B and Ferrari 312 debut aerodynamic wings. Downforce concept revolutionizes grip and cornering speed forever.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">1968</div><div class="card-tag orange">Commercial</div><div class="card-title-year">1968</div><div class="card-title-name">Sponsor Livery — Gold Leaf</div><p class="card-desc">Lotus 49 debuts first sponsor livery. Opens commercial floodgates — changed F1's business model permanently.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange"></div><div class="impact-seg orange"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="era-group fade-in" id="era1970">
+    <div class="era-header"><div class="era-year">70s</div><div class="era-name">Ground Effect Era<small>1970–1979 — Lotus & Venturi Tunnels</small></div></div>
+    <div class="cards-grid">
+      <div class="inno-card"><div class="card-year-bg">1977</div><div class="card-tag">Aerodynamics</div><div class="card-title-year">1977</div><div class="card-title-name">Ground Effect — Lotus 78</div><p class="card-desc">Colin Chapman's Lotus 78 uses venturi tunnels to generate massive downforce without drag penalty. Cars literally sucked to the ground.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">1979</div><div class="card-tag">Power Unit</div><div class="card-title-year">1979</div><div class="card-title-name">First Turbo Win — Renault</div><p class="card-desc">Renault RS10 wins at Dijon. Signals the coming era that would produce over 1,000hp by 1986.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="era-group fade-in" id="era1980">
+    <div class="era-header"><div class="era-year">80s</div><div class="era-name">Turbo & Tech War<small>1980–1989 — Peak Power, Active Systems</small></div></div>
+    <div class="cards-grid">
+      <div class="inno-card"><div class="card-year-bg">1983</div><div class="card-tag">Power Unit</div><div class="card-title-year">1983</div><div class="card-title-name">Full Turbo Era</div><p class="card-desc">Turbo engines dominate. BMW quali engine reaches ~1,400hp. Fastest naturally-aspirated cars rendered obsolete overnight.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">1986</div><div class="card-tag orange">Electronics</div><div class="card-title-year">1986</div><div class="card-title-name">Active Suspension — Lotus</div><p class="card-desc">Lotus introduces active suspension. Williams later perfects it into an unbeatable system that gets banned in 1994.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">1988</div><div class="card-tag">Dominance</div><div class="card-title-year">1988</div><div class="card-title-name">McLaren MP4/4</div><p class="card-desc">Senna and Prost win 15 of 16 races. Greatest single-season car ever built — Honda turbo + McLaren chassis = perfection.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="era-group fade-in" id="era1990">
+    <div class="era-header"><div class="era-year">90s</div><div class="era-name">High-Tech & Banning<small>1990–1999 — Electronics War Then Crackdown</small></div></div>
+    <div class="cards-grid">
+      <div class="inno-card orange"><div class="card-year-bg">1992</div><div class="card-tag orange">Electronics</div><div class="card-title-year">1992</div><div class="card-title-name">Williams FW14B</div><p class="card-desc">Active suspension, traction control, ABS and semi-auto gearbox in one car. Nigel Mansell dominates. Most tech-advanced car of its time.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">1994</div><div class="card-tag">Regulation</div><div class="card-title-year">1994</div><div class="card-title-name">Electronic Aids Banned</div><p class="card-desc">FIA bans active suspension, traction control, ABS following Imola tragedies. F1 reverts to driver skill for a decade.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="era-group fade-in" id="era2000">
+    <div class="era-header"><div class="era-year">00s</div><div class="era-name">Hybrid Dawn<small>2000–2013 — KERS, DRS, Aero Complexity</small></div></div>
+    <div class="cards-grid">
+      <div class="inno-card neon"><div class="card-year-bg">2009</div><div class="card-tag neon">Hybrid</div><div class="card-title-year">2009</div><div class="card-title-name">KERS — Kinetic Recovery</div><p class="card-desc">First energy recovery in F1. Captures braking energy → ~80hp electric boost. Brawn GP's double diffuser also shocks the grid.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg neon filled"></div><div class="impact-seg neon filled"></div><div class="impact-seg neon filled"></div><div class="impact-seg neon filled"></div><div class="impact-seg neon"></div></div></div></div>
+      <div class="inno-card neon"><div class="card-year-bg">2011</div><div class="card-tag neon">Aero</div><div class="card-title-year">2011</div><div class="card-title-name">DRS — Drag Reduction System</div><p class="card-desc">Rear wing opens on straights to reduce drag. Boosted overtaking significantly. Replaced in 2026 by Active Aero.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg neon filled"></div><div class="impact-seg neon filled"></div><div class="impact-seg neon filled"></div><div class="impact-seg neon filled"></div><div class="impact-seg neon"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="era-group fade-in" id="era2010">
+    <div class="era-header"><div class="era-year">10s</div><div class="era-name">Hybrid Revolution<small>2014–2021 — V6 Turbo Hybrid</small></div></div>
+    <div class="cards-grid">
+      <div class="inno-card blue"><div class="card-year-bg">2014</div><div class="card-tag blue">Power Unit</div><div class="card-title-year">2014</div><div class="card-title-name">V6 Turbo-Hybrid PU</div><p class="card-desc">1.6L V6 turbo + MGU-H + MGU-K. Thermal efficiency exceeds 50% — most efficient race engine ever built. Mercedes dominates for 8 years.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg blue filled"></div><div class="impact-seg blue filled"></div><div class="impact-seg blue filled"></div><div class="impact-seg blue filled"></div><div class="impact-seg blue filled"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">2017</div><div class="card-tag">Regulations</div><div class="card-title-year">2017</div><div class="card-title-name">Wider Cars & Tyres</div><p class="card-desc">Car width +200mm, tyre width increases dramatically. Lap times drop 3-5 seconds. Most visually aggressive era since the late 90s.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg"></div><div class="impact-seg"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="era-group fade-in" id="era2020">
+    <div class="era-header"><div class="era-year">20s</div><div class="era-name">New Era<small>2022–2025 — Ground Effect Returns, Budget Cap, Flexi-Wings</small></div></div>
+    <div class="cards-grid">
+      <div class="inno-card orange"><div class="card-year-bg">2022</div><div class="card-tag orange">Regulations</div><div class="card-title-year">2022</div><div class="card-title-name">Ground Effect Returns + Budget Cap</div><p class="card-desc">Biggest regulation change in decades. 18-inch wheels, venturi floor returns, $140M cost cap. Designed to close the grid.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">2023</div><div class="card-tag">Safety</div><div class="card-title-year">2023</div><div class="card-title-name">Anti-Porpoising Fix</div><p class="card-desc">Floor height raised +15mm, diffuser throat +10mm to combat violent porpoising from 2022 ground effect cars.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg filled"></div><div class="impact-seg"></div><div class="impact-seg"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">2024</div><div class="card-tag orange">Aero</div><div class="card-title-year">2024</div><div class="card-title-name">Flexi-Wing / Mini-DRS</div><p class="card-desc">McLaren and Mercedes develop aeroelastic front wings that flex at high speed. FIA mounts cameras to monitor after Belgian GP.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange filled"></div><div class="impact-seg orange"></div><div class="impact-seg orange"></div></div></div></div>
+      <div class="inno-card"><div class="card-year-bg">2025</div><div class="card-tag neon">Sustainability</div><div class="card-title-year">2025</div><div class="card-title-name">E10 Fuel + Flexi Crackdown</div><p class="card-desc">Full season with E10 sustainable fuel (10% ethanol). FIA bans flexible wing slot gaps from Spanish GP. Teams scramble to redesign.</p><div class="card-impact"><span>IMPACT</span><div class="impact-bar"><div class="impact-seg neon filled"></div><div class="impact-seg neon filled"></div><div class="impact-seg neon filled"></div><div class="impact-seg neon"></div><div class="impact-seg neon"></div></div></div></div>
+    </div>
+  </div>
+
+  <div class="era-group fade-in" id="era2026">
+    <div class="era-header"><div class="era-year" style="color:var(--red)">2026</div><div class="era-name">The Future Is Now<small style="color:var(--red)">Active Aero + Manual Override Mode + New Power Unit</small></div></div>
+    <div class="cards-grid">
+      <div class="card-2026">
+        <div class="card-2026-kerb"></div>
+        <div class="card-2026-inner">
+          <div class="card-2026-title-block">
+            <div class="year">2026</div>
+            <div class="name">Manual Override Mode</div>
+            <div class="sub">FIA F1 — Active Aero Era</div>
+            <p style="font-size:10px;color:rgba(255,255,255,0.5);line-height:1.8;margin-top:1rem">New hybrid Power Unit combined with Active Aerodynamics replaces DRS. Drivers manage battery deployment, aero modes, and Manual Override boost in real-time.</p>
+          </div>
+          <div>
+            <div style="font-size:9px;letter-spacing:2px;color:var(--silver);text-transform:uppercase;margin-bottom:8px">Aero Mode Select</div>
+            <div class="mode-toggle">
+              <button class="mode-btn z-active" id="btnZ2026" onclick="setMode2026('Z')">Z-MODE — High Downforce <span class="mode-dot"></span></button>
+              <button class="mode-btn" id="btnX2026" onclick="setMode2026('X')">X-MODE — Low Drag <span class="mode-dot" style="background:rgba(0,191,255,0.3)"></span></button>
+            </div>
+            <div class="mode-desc-box" id="modeDesc2026">Z-MODE ACTIVE — Wings angled steep for maximum cornering grip. Front and rear surfaces at high-attack position.</div>
+          </div>
+          <div class="power-block">
+            <div style="font-size:9px;letter-spacing:2px;color:var(--silver);text-transform:uppercase;margin-bottom:4px">Electric Boost Output</div>
+            <div class="power-num">350kW</div>
+            <div class="power-label">500 HP — Manual Override</div>
+            <div class="seg-bar" id="segBar2026"></div>
+            <div class="bar-labels"><span>0</span><span>175kW</span><span>350kW</span></div>
+            <div style="font-size:9px;color:var(--silver);margin-top:12px;line-height:1.6">ICE: 400kW (550HP)<br>Total Combined: 750kW+</div>
+          </div>
+        </div>
+        <div class="card-2026-kerb" style="margin-top:1.5rem;margin-bottom:0"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-logo">F1 <span>INNOVATION</span> LOG</div>
+  <div class="footer-note">CMD332 Experimental Graphic Design · 2025/2026</div>
+</footer>
+
+<script>
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+  function scrollToCard(id) {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function setMode2026(m) {
+    const z = document.getElementById('btnZ2026');
+    const x = document.getElementById('btnX2026');
+    const desc = document.getElementById('modeDesc2026');
+    if (m === 'Z') {
+      z.className = 'mode-btn z-active'; x.className = 'mode-btn';
+      x.querySelector('.mode-dot').style.background = 'rgba(0,191,255,0.3)';
+      desc.textContent = 'Z-MODE ACTIVE — Wings angled steep for maximum cornering grip. Front and rear aero surfaces tilted to high-attack position.';
+    } else {
+      x.className = 'mode-btn x-active'; z.className = 'mode-btn';
+      z.querySelector('.mode-dot').style.background = 'rgba(212,255,0,0.3)';
+      desc.textContent = 'X-MODE ACTIVE — Wings flatten for minimum drag on straights. Combined with Manual Override: +500HP electric surge forward.';
+    }
+  }
+
+  function buildSegs(id, total, filled, peak) {
+    const bar = document.getElementById(id);
+    if (!bar) return;
+    for (let i = 0; i < total; i++) {
+      const s = document.createElement('div');
+      s.className = 'seg' + (i < filled ? (i >= peak ? ' peak' : ' on') : '');
+      bar.appendChild(s);
+    }
+  }
+  buildSegs('segBar2026', 14, 12, 11);
+</script>
+</body>
+</html>
